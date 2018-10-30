@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>test pushstate</title>
+</head>
+<body>
+  get state
+  <div id="demo"></div>
+  <script>
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker
+        .register('./sw.js')
+        .then(function(registration){
+          console.log('success: ',registration)
+        })
+        .catch(function(err){
+          console.log('serviceWorker error', err)
+        })
+    }else{
+      console.log('serviceWorker not available')
+    }
+
+    var worker = new Worker('worker.js')
+    console.log(worker)
+    worker.postMessage({
+      id: 1,
+      msg: 'hello worker'
+    })
+
+    worker.onmessage = function(message){
+      console.log('html get:', message.data)
+    }
+
+    worker.onerror = function(error){
+      console.log('worker on error', error)
+    }
+    var worker1 = new Worker('worker.js')
+    console.log(worker1)
+    worker1.postMessage({
+      id: 2,
+      msg: 'hello worker1'
+    })
+
+    worker1.onmessage = function(message){
+      console.log('html get:', message.data)
+    }
+
+    worker1.onerror = function(error){
+      console.log('worker on error', error)
+    }
+  </script>
+
+</body>
+</html>

@@ -9,4 +9,8 @@ if(navigator.serviceWorker){
     console.log(err)
   })
 
+  navigator.serviceWorker.onmessage = function(e){
+    console.log(e.data)
+  }
+
 }

@@ -1,26 +1,38 @@
 
 
-(function(a){
+
+var worker
 
 
-  var worker = new Worker('./task.js')
+document.onload = function(argument) {
+}
 
-  worker.postMessage({
-    title: "hello",
-    msg: "say hi from main.js"
-  })
-  
-  worker.onmessage = function(event){
-
-    if(event && event.data){
-      console.log(event.data.msg)
-      return 
+document.querySelector('#start').addEventListener = function(){
+  if(typeof(Worker) !== 'undefined'){
+    if(typeof(worker) === 'undefined'){
+      worker = new Worker('./task.js')
     }
-    worker.terminal()
-  }
+    worker.onmessage = function(event){
 
-  worker.onerror = function(err){
-    console.log(err)
-  }
+      if(event && event.data){
+        document.querySelector('#count').innerHTML(event.data.msg)
+        return 
+      }
+    }
 
-})(window)
+  }else{
+    document.querySelector('#count').innerHTML('浏览器不支持')
+  }
+  
+  
+}  
+
+document.querySelector('#post').addEventListener = function(){
+  worker.postMessage({msg: 'hanmeimei'})
+}
+
+document.querySelector('#stop').addEventListener = function(){
+  worker.terminate()
+}
+
+
