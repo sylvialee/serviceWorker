@@ -1,0 +1,168 @@
+
+# service worker 
+近两年前端比较热的话题之一就是PWA（Progressive Web APP）——渐进式网页，是谷歌推出的webapp实现方案；致力于实现与原生APP相似的交互体验。
+
+* menifest实现手机主界面的web app图标、标题、开屏icon等
+* service worker实现离线缓存请求、更新缓存、删除缓存；iOS safari在11.3系统已支持。
+* push/notification实现消息推送及接收
+
+我们主要来说说service worker（以下简称SW）的实现方式
+
+## service worker 是什么
+在说SW之前，先来回顾下js的单线程问题。
+
+众所周知，js在浏览器中是单线程运行的；主要是为了准确操作DOM。但单线程存在的问题是，UI线程和js线程需要抢占资源，在js执行耗时逻辑时，容易造成页面假死，用户体验较差。
+
+由此出现了异步操作，可不影响主界面的响应。如ajax、promise等。
+除此之外，还有html5开放的web worker可以在浏览器后台挂载新线程。它无法直接操作DOM，无法访问window、document、parent对象
+
+SW是web worker的一种，也是挂载在浏览器后台运行的线程。主要用于代理网页请求，可缓存请求结果；可实现离线缓存功能。也拥有单独的作用域范围和运行环境
+
+### SW使用限制
+- 同源策略，缓存及拦截的请求必须与主线程同源
+- 无法直接操作DOM对象，也无法访问window、document、parent对象。可以访问location、navigator
+- 可代理的页面作用域限制。默认是sw.js所在文件目录及子目录的请求可代理，可在注册时手动设置作用域范围
+- 必须在https中使用，允许开发调试的localhost使用
+
+### SW兼容性
+目前移动端chrome及ios safari 11.3以上已支持
+![avatar](http://wx4.sinaimg.cn/mw690/76c6c688ly1fwqja3fbgwj215e0bbwfx.jpg)
+
+## service worker可以解决的问题
+* 用户多次访问网站时加快访问速度
+* 离线缓存接口请求及文件，更新、清除缓存内容
+* 可以在客户端通过 indexedDB API 保存持久化信息
+
+
+## 生命周期
+生命周期由5步：注册、安装成功（安装失败）、激活、运行、销毁
+事件：install、activate、message、fetch、push、async
+
+由于是离线缓存，所以在首次注册、二次访问、服务脚本更新等会有不同的生命周期
+
+### 首次注册流程
+![avatar](http://wx4.sinaimg.cn/small/76c6c688ly1fwr9kroo9pj209c0bamxd.jpg)
+### 二次访问
+在上一次服务未销毁时，二次访问页面，直接停留在激活运行状态
+
+### 服务脚本更新
+![avatar](http://wx1.sinaimg.cn/mw690/76c6c688ly1fwr9kw090jj20910chmxk.jpg)
+
+
+## SW的实际使用
+
+### 注册
+在主线程main.js中调起注册方法register，register只会被执行一次
+
+    // 主线程的main.js
+    // 先判断浏览器是否支持
+    if('serviceWorker' in navigator){
+        navigator.serviceWorker
+        
+            // scope是自定义sw的作用域范围为根目录，默认作用域为当前sw.js所在目录的自文件
+            .register('./sw.js', {scope: '/'})
+            
+            // 注册成功后会返回reg对象，指代当前服务线程实例
+            .then(reg => {
+                console.log('注册成功')  
+            })
+            .catch(error => {
+                console.log('注册失败')
+            })
+    }else{
+        console.log('当前浏览器不支持SW')
+    }
+
+### 安装
+在服务线程中添加安装监听及对应需缓存的资源文件
+
+    // 在sw.js中监听对应的安装事件，并预处理需要缓存的文件
+    // 该部分内容涉及到cacheStorage API
+    
+    // 定义缓存空间名称
+    const CACHE_NAME = 'sylvia_cache'
+    
+    // 定义需要缓存的文件目录
+    let filesToCache = [
+        '/src/css/test.css',
+        '/src/js/test.js'
+    ]
+    
+    // 监听安装事件，返回installEvent对象
+    self.addEventListener('install', function(event){
+        
+        // waitUntil方法执行缓存方法
+        event.waitUntil(
+            // cacheStorage API 可直接用caches来替代
+            // open方法创建/打开缓存空间，并会返回promise实例
+            // then来接收返回的cache对象索引
+            caches.open(CACHE_NAME).then(cache => {
+            
+                // cache对象addAll方法解析（同fetch）并缓存所有的文件
+                cache.addAll(filesToCache)
+            })
+        )
+    })
+
+### 激活
+第一次注册并安装成功后，会触发activate事件
+
+    self.addEventListener('activate', event => {
+        console.log('安装成功，即将监听作用域下的所有页面')
+    })
+
+在有sw脚本更新时，在后台默默注册安装新的脚本文件，安装成功后进入waiting状态。
+### 运行
+安装并激活成功后，就可以对页面实行fetch监控啦。
+
+
+    // 可以过滤使用已缓存的请求，若无缓存，由fetch发起新的请求，并返回给页面
+    self.addEventListener('fetch', event => {
+        event.responseWith(
+            caches.match(event.request).then(res => {
+                if(res){
+                    return res
+                }else{
+                    return fetch(event.request)
+                }
+            })
+        )
+    })
+
+    // 也可连续将请求缓存到内存里
+    self.addEventListener('fetch', event => {
+        event.responseWith(
+            caches.match(event.request).then(response => {
+                if(response){
+                    return response
+                }
+                let requestClone = event.request.clone()
+                return fetch(requestClone).then(res => {
+                    if(!res || res.status !== 200){
+                        return res
+                    }
+                    let resClone = res.clone()
+                    caches.open(CACHE_NAME).then(cache => {
+                        cache.put(event.request, resClone)
+                    })
+                    return res
+                })
+            })
+        )
+    })
+
+### 进程销毁
+- 当安装失败时会被浏览器丢弃该工作线程
+- 浏览器后台启动SW时，会消耗性能，所以在不需要使用缓存时，可销毁
+
+      self.terminate()
+
+## 使用方法
+
+
+## debug
+
+## 应用框架workbox
+目前chrome有出一套完整的SW实用框架，可以较低成本的实现离线缓存
+
+
