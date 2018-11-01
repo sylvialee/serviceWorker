@@ -8,7 +8,7 @@
 
 我们主要来说说service worker（以下简称SW）的实现方式
 
-## service worker 是什么
+## 1、service worker 是什么
 在说SW之前，先来回顾下js的单线程问题。
 
 众所周知，js在浏览器中是单线程运行的；主要是为了准确操作DOM。但单线程存在的问题是，UI线程和js线程需要抢占资源，在js执行耗时逻辑时，容易造成页面假死，用户体验较差。
@@ -18,40 +18,41 @@
 
 SW是web worker的一种，也是挂载在浏览器后台运行的线程。主要用于代理网页请求，可缓存请求结果；可实现离线缓存功能。也拥有单独的作用域范围和运行环境
 
-### SW使用限制
+### 1.1 SW使用限制
 - 同源策略，缓存及拦截的请求必须与主线程同源
 - 无法直接操作DOM对象，也无法访问window、document、parent对象。可以访问location、navigator
 - 可代理的页面作用域限制。默认是sw.js所在文件目录及子目录的请求可代理，可在注册时手动设置作用域范围
 - 必须在https中使用，允许开发调试的localhost使用
 
-### SW兼容性
+### 1.2 SW兼容性
 目前移动端chrome及ios safari 11.3以上已支持
 ![avatar](http://wx4.sinaimg.cn/mw690/76c6c688ly1fwqja3fbgwj215e0bbwfx.jpg)
 
-## service worker可以解决的问题
+## 2、service worker可以解决的问题
 * 用户多次访问网站时加快访问速度
 * 离线缓存接口请求及文件，更新、清除缓存内容
 * 可以在客户端通过 indexedDB API 保存持久化信息
 
 
-## 生命周期
+## 3、生命周期
 生命周期由5步：注册、安装成功（安装失败）、激活、运行、销毁
 事件：install、activate、message、fetch、push、async
 
 由于是离线缓存，所以在首次注册、二次访问、服务脚本更新等会有不同的生命周期
 
-### 首次注册流程
-![avatar](http://wx4.sinaimg.cn/small/76c6c688ly1fwr9kroo9pj209c0bamxd.jpg)
-### 二次访问
+### 3.1 首次注册流程
+![avatar](http://wx3.sinaimg.cn/small/76c6c688ly1fwrascaop4j209u0b3mxd.jpg)
+
+### 3.2 二次访问
 在上一次服务未销毁时，二次访问页面，直接停留在激活运行状态
 
-### 服务脚本更新
+### 3.3 服务脚本更新
 ![avatar](http://wx1.sinaimg.cn/mw690/76c6c688ly1fwr9kw090jj20910chmxk.jpg)
 
 
-## SW的实际使用
+## 4、SW的实际使用
 
-### 注册
+### 4.1 注册
 在主线程main.js中调起注册方法register，register只会被执行一次
 
     // 主线程的main.js
@@ -73,7 +74,7 @@ SW是web worker的一种，也是挂载在浏览器后台运行的线程。主�
         console.log('当前浏览器不支持SW')
     }
 
-### 安装
+### 4.2 安装
 在服务线程中添加安装监听及对应需缓存的资源文件
 
     // 在sw.js中监听对应的安装事件，并预处理需要缓存的文件
@@ -93,6 +94,7 @@ SW是web worker的一种，也是挂载在浏览器后台运行的线程。主�
         
         // waitUntil方法执行缓存方法
         event.waitUntil(
+        
             // cacheStorage API 可直接用caches来替代
             // open方法创建/打开缓存空间，并会返回promise实例
             // then来接收返回的cache对象索引
@@ -104,15 +106,26 @@ SW是web worker的一种，也是挂载在浏览器后台运行的线程。主�
         )
     })
 
-### 激活
+### 4.3 激活
 第一次注册并安装成功后，会触发activate事件
 
     self.addEventListener('activate', event => {
         console.log('安装成功，即将监听作用域下的所有页面')
     })
 
-在有sw脚本更新时，在后台默默注册安装新的脚本文件，安装成功后进入waiting状态。
-### 运行
+在有sw脚本更新时，在后台默默注册安装新的脚本文件，安装成功后进入waiting状态。当前所有老版本控制的页面关闭后，再次打开时，新版本的脚本触发activate事件，此时可清除旧缓存
+
+    self.addEventListener('activate', event => {
+        caches.keys().then(keyList => {
+            Promise.all(keyList.map(key => {
+                if(filesToCache.indexOf(key) === -1){
+                    
+                }
+            }))
+        })
+    })
+
+### 4.4 运行
 安装并激活成功后，就可以对页面实行fetch监控啦。
 
 
@@ -151,18 +164,17 @@ SW是web worker的一种，也是挂载在浏览器后台运行的线程。主�
         )
     })
 
-### 进程销毁
+### 4.5 进程销毁
 - 当安装失败时会被浏览器丢弃该工作线程
 - 浏览器后台启动SW时，会消耗性能，所以在不需要使用缓存时，可销毁
 
       self.terminate()
 
-## 使用方法
 
 
-## debug
+## 5、debug
 
-## 应用框架workbox
+## 6、应用框架workbox
 目前chrome有出一套完整的SW实用框架，可以较低成本的实现离线缓存
 
 
