@@ -113,16 +113,27 @@ SW是web worker的一种，也是挂载在浏览器后台运行的线程。主�
         console.log('安装成功，即将监听作用域下的所有页面')
     })
 
-在有sw脚本更新时，在后台默默注册安装新的脚本文件，安装成功后进入waiting状态。当前所有老版本控制的页面关闭后，再次打开时，新版本的脚本触发activate事件，此时可清除旧缓存
+在有sw脚本更新时，在后台默默注册安装新的脚本文件，安装成功后进入waiting状态。当前所有老版本控制的页面关闭后，再次打开时，新版本的脚本触发activate事件，此时可清除旧缓存，当前是修改CACHE_NAME的值来实现清除之前的缓存
 
+    // 监听激活事件
     self.addEventListener('activate', event => {
-        caches.keys().then(keyList => {
+        // 获取所有的缓存key值，将需要被缓存的路径加载放到缓存空间下
+        var cacheDeletePromise = caches.keys().then(keyList => {
             Promise.all(keyList.map(key => {
-                if(filesToCache.indexOf(key) === -1){
-                    
+                if(key !== CACHE_NAME){
+                    var deletePromise = caches.delete(key)
+                    return deletePromise
+                }else{
+                    Promise.resolve()
                 }
             }))
         })
+        // 等待所有的缓存都被清除后，直接启动新的缓存机制
+        event.waitUtil(
+            Promise.all([cacheDeletePromise]).then(res => {
+                this.client.claim()
+            })
+        )
     })
 
 ### 4.4 运行
@@ -172,9 +183,38 @@ SW是web worker的一种，也是挂载在浏览器后台运行的线程。主�
 
 
 
-## 5、debug
-
 ## 6、应用框架workbox
 目前chrome有出一套完整的SW实用框架，可以较低成本的实现离线缓存
+并提前封装好了对应所需的API
+### 使用方法
+在sw.js的文件中直接引入workbox的cdn上的文件
+
+    importScripts('https://storage.googleapis.com/workbox-cdn/releases/3.0.0-alpha.3/workbox-sw.js')
+    if(workbox){
+        console.log('your workbox is working now')
+    }else{
+        console.log('it can't work!')
+    }
+
+如果浏览器支持，可以直接在引用API接口：
+- precaching，可以在注册成功后直接缓存的文件
+- routing，匹配符合规则的url，与stratagies合作来完成文件的缓存
 
 
+    // 注册完成后，即缓存对应的文件列表
+    workbox.precaching.precacheAndRoute([
+        '/src/static/js/index.js',
+        '/src/static/css/index/css',
+        {url: '/src/static/img/logo.png', revision" }
+    ])
+    
+    // routing方法匹配请求文件路径，strategies用来存储对应文件
+    workbox.routing.registerRoute(
+        matchFunction,  // 字符串或者是正则表达式
+        handler // 可以使用workbox.strategies缓存策略来缓存
+    )
+
+workbox.strategies缓存策略有：
+- 
+
+    workbox.strategies.NetworkFirst()
