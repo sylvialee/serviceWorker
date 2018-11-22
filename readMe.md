@@ -215,6 +215,8 @@ SW是web worker的一种，也是挂载在浏览器后台运行的线程。主�
     )
 
 workbox.strategies缓存策略有：
-- 
-
-    workbox.strategies.NetworkFirst()
+- staleWhileRevalidate 使用已有的缓存，然后发起请求，用请求结果来更新缓存
+- networkFirst 先发起请求，请求成功后会缓存结果。如果失败，则使用最新的缓存
+- cacheFirst 总是先使用缓存，如果无匹配的缓存，则发起网络请求并缓存结果
+- networkOnly 强制发起请求
+- cacheOnly 强制使用缓存
