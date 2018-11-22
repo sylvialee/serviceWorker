@@ -220,3 +220,10 @@ workbox.strategies缓存策略有：
 - cacheFirst 总是先使用缓存，如果无匹配的缓存，则发起网络请求并缓存结果
 - networkOnly 强制发起请求
 - cacheOnly 强制使用缓存
+
+    // 缓存使用方法
+    workbox.routing.registerRoute(
+        '/src/index.js',
+        workbox.strategies.staleWhileRevalidate()
+    )
+    
