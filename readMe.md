@@ -199,8 +199,8 @@ SW是web worker的一种，也是挂载在浏览器后台运行的线程。主�
 如果浏览器支持，可以直接在引用API接口：
 - precaching，可以在注册成功后直接缓存的文件
 - routing，匹配符合规则的url，与stratagies合作来完成文件的缓存
-示例：
 
+示例：
     // 注册完成后，即缓存对应的文件列表
     workbox.precaching.precacheAndRoute([
         '/src/static/js/index.js',
@@ -220,8 +220,8 @@ workbox.strategies缓存策略有：
 - cacheFirst 总是先使用缓存，如果无匹配的缓存，则发起网络请求并缓存结果
 - networkOnly 强制发起请求
 - cacheOnly 强制使用缓存
-示例：
 
+示例：
      // 缓存使用方法
         workbox.routing.registerRoute(
             '/src/index.js',
