@@ -201,6 +201,7 @@ SW是web worker的一种，也是挂载在浏览器后台运行的线程。主�
 - routing，匹配符合规则的url，与stratagies合作来完成文件的缓存
 
 示例：
+    
     // 注册完成后，即缓存对应的文件列表
     workbox.precaching.precacheAndRoute([
         '/src/static/js/index.js',
@@ -222,6 +223,7 @@ workbox.strategies缓存策略有：
 - cacheOnly 强制使用缓存
 
 示例：
+     
      // 缓存使用方法
         workbox.routing.registerRoute(
             '/src/index.js',
