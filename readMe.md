@@ -131,7 +131,7 @@ SW是web worker的一种，也是挂载在浏览器后台运行的线程。主�
         // 等待所有的缓存都被清除后，直接启动新的缓存机制
         event.waitUtil(
             Promise.all([cacheDeletePromise]).then(res => {
-                this.client.claim()
+                this.clients.claim()
             })
         )
     })
