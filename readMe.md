@@ -1,12 +1,16 @@
 
 # service worker 
-近两年前端比较热的话题之一就是PWA（Progressive Web APP）——渐进式网页，是谷歌推出的webapp实现方案；致力于实现与原生APP相似的交互体验。
+近两年前端比较热的话题之一就是PWA（Progressive Web APP）——渐进式网页；致力于实现与原生APP相似的交互体验。
 
-* menifest实现手机主界面的web app图标、标题、开屏icon等
+最早听说pwa，是去年年底的时候，看到朋友圈里的前端大神分享相关文章、应用。今年大概3月份的时候，看到ios从11.3开始支持后，就开始认真了解相关实现。
+
+了解后发现，这一技术涉及到的内容很多。总结下来，pwa的实现其实主要依赖于以下三点：
+
+* manifest 实现手机主界面的web app图标、标题、开屏icon等
 * service worker实现离线缓存请求、更新缓存、删除缓存；iOS safari在11.3系统已支持。
 * push/notification实现消息推送及接收
 
-我们主要来说说service worker（以下简称SW）的实现方式
+其中service worker是离线应用的关键，我们主要来说说service worker（以下简称SW）
 
 ## 1、service worker 是什么
 在说SW之前，先来回顾下js的单线程问题。
@@ -14,46 +18,73 @@
 众所周知，js在浏览器中是单线程运行的；主要是为了准确操作DOM。但单线程存在的问题是，UI线程和js线程需要抢占资源，在js执行耗时逻辑时，容易造成页面假死，用户体验较差。
 
 由此出现了异步操作，可不影响主界面的响应。如ajax、promise等。
-除此之外，还有html5开放的web worker可以在浏览器后台挂载新线程。它无法直接操作DOM，无法访问window、document、parent对象
+
+后来html5开放的web worker可以在浏览器后台挂载新线程。它无法直接操作DOM，无法访问window、document、parent对象
 
 SW是web worker的一种，也是挂载在浏览器后台运行的线程。主要用于代理网页请求，可缓存请求结果；可实现离线缓存功能。也拥有单独的作用域范围和运行环境
 
 ### 1.1 SW使用限制
-- 同源策略，缓存及拦截的请求必须与主线程同源
+SW除了work线程的限制外，由于可拦截页面请求，为了保证页面安全，浏览器端对sw的使用限制也不少。
+
 - 无法直接操作DOM对象，也无法访问window、document、parent对象。可以访问location、navigator
 - 可代理的页面作用域限制。默认是sw.js所在文件目录及子目录的请求可代理，可在注册时手动设置作用域范围
-- 必须在https中使用，允许开发调试的localhost使用
+- 必须在https中使用，允许在开发调试的localhost使用
 
 ### 1.2 SW兼容性
 目前移动端chrome及ios safari 11.3以上已支持
+pc端火狐、谷歌、欧朋等支持
+
+目前来看移动端及pc端都是可以尝试使用哒
+
 ![avatar](http://wx4.sinaimg.cn/mw690/76c6c688ly1fwqja3fbgwj215e0bbwfx.jpg)
 
-## 2、service worker可以解决的问题
+不过在chrome里调试是最方便的，
+
+可以直观看到当前SW的状态、使用页面；
+![avatar](http://wx3.sinaimg.cn/mw690/76c6c688ly1fxlr4tyazvj21fc0oidk9.jpg)
+
+在cacheStorage查看缓存空间的存储信息
+![avatar](http://wx2.sinaimg.cn/mw690/76c6c688ly1fxlr4z7rvbj21f80r8n1a.jpg)
+
+### 1.3、service worker可以解决的问题
+
+
 * 用户多次访问网站时加快访问速度
 * 离线缓存接口请求及文件，更新、清除缓存内容
 * 可以在客户端通过 indexedDB API 保存持久化信息
 
 
-## 3、生命周期
+## 2、生命周期
 生命周期由5步：注册、安装成功（安装失败）、激活、运行、销毁
 事件：install、activate、message、fetch、push、async
 
+
 由于是离线缓存，所以在首次注册、二次访问、服务脚本更新等会有不同的生命周期
 
-### 3.1 首次注册流程
-![avatar](http://wx3.sinaimg.cn/small/76c6c688ly1fwrascaop4j209u0b3mxd.jpg)
+### 2.1 首次注册流程
+从主线程注册后，会下载服务工作线程的js。
+安装：执行过程即是installing过程，此时会触发install事件，并执行installEvent的waitUtil方法。执行完毕后，当前状态是installed。
+激活：立即进入activating状态；并触发activate事件，处理相关事件内容。执行完成后，变成activated状态
+销毁： 当安装失败或进程被关闭时
 
-### 3.2 二次访问
+![avatar](http://wx3.sinaimg.cn/mw690/76c6c688ly1fwrascaop4j209u0b3mxd.jpg)
+
+### 2.2 二次访问
 在上一次服务未销毁时，二次访问页面，直接停留在激活运行状态
+![avatar](http://wx3.sinaimg.cn/mw690/76c6c688ly1fxlr4tyazvj21fc0oidk9.jpg)
 
-### 3.3 服务脚本更新
+### 2.3 服务脚本更新
+如上图，sw.js中，每次访问都会被下载一次。并且至少每24小时会被下载一次。为的是避免错误代码一直被运行。
+下载后，会比对是否更新，如果更新，就会重新注册安装serivceworker，安装成功后会处于waiting状态。
+当clients都被关闭后，再次打开，才会激活最新的代码
+当然，也有方法可以跳过等待，比方说在安装完成后，执行installEvent.skipWaiting()
 ![avatar](http://wx1.sinaimg.cn/mw690/76c6c688ly1fwr9kw090jj20910chmxk.jpg)
-
+![avatar](http://wx1.sinaimg.cn/mw690/76c6c688ly1fxp1jvqgppj21le0u0tcu.jpg)
 
 ## 4、SW的实际使用
 
 ### 4.1 注册
-在主线程main.js中调起注册方法register，register只会被执行一次
+在主线程main.js中调起注册方法register，register只会被执行一次。
 
     // 主线程的main.js
     // 先判断浏览器是否支持
@@ -197,6 +228,7 @@ SW是web worker的一种，也是挂载在浏览器后台运行的线程。主�
     }
 
 如果浏览器支持，可以直接在引用API接口：
+
 - precaching，可以在注册成功后直接缓存的文件
 - routing，匹配符合规则的url，与stratagies合作来完成文件的缓存
 
@@ -216,6 +248,7 @@ SW是web worker的一种，也是挂载在浏览器后台运行的线程。主�
     )
 
 workbox.strategies缓存策略有：
+
 - staleWhileRevalidate 使用已有的缓存，然后发起请求，用请求结果来更新缓存
 - networkFirst 先发起请求，请求成功后会缓存结果。如果失败，则使用最新的缓存
 - cacheFirst 总是先使用缓存，如果无匹配的缓存，则发起网络请求并缓存结果
@@ -230,3 +263,8 @@ workbox.strategies缓存策略有：
             workbox.strategies.staleWhileRevalidate()
         )
     
+
+## 6、参考文献
+1、https://developer.mozilla.org/zh-CN/docs/Web/API/Service_Worker_API
+2、https://www.jianshu.com/p/916a01670a23
+3、https://developers.google.com/web/tools/workbox/
