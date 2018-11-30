@@ -1,5 +1,5 @@
 李晓娟    租赁平台技术中心-大前端研发部-李晓娟（花名：西薇亚）    15600591713    
-service worker的功能点，使用限制。如何使用sw来实现客户端的离线缓存。现有的基于service worker实现的workbox,怎么使用
+service worker的功能点，使用限制。如何使用sw来实现客户端的离线缓存。现有的基于service worker实现的workbox介绍，实现的缓存策略等
 
 
 # service worker 实现离线缓存
