@@ -4,7 +4,7 @@ const urlsToCache = [
   './test.css'
 ]
 const fetchUrl = [
-    './static/img/cat.png'
+    './static/src/'
   ]
 
 self.addEventListener('install', function(e){
@@ -17,7 +17,6 @@ self.addEventListener('install', function(e){
 })
 
 self.addEventListener('fetch', function(e){
-  console.log(e)
   let requestUrl = e.request.url
-  // e.responseWith()
+  e.responseWith()
 })
