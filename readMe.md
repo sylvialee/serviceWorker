@@ -292,6 +292,8 @@ pc端火狐、谷歌、欧朋等支持
 
 ## 6、参考文献
 1、https://developer.mozilla.org/zh-CN/docs/Web/API/Service_Worker_API
+
 2、https://www.jianshu.com/p/916a01670a23
+
 3、https://developers.google.com/web/tools/workbox/
 
