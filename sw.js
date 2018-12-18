@@ -1,7 +1,6 @@
 const CACHE_NAME = 'sylvia_cache_v1.0.0'
 const urlsToCache = [
-  './test.js',
-  './test.css'
+  './worker.js'
 ]
 const fetchUrl = [
     './static/img/cat.png'
