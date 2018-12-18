@@ -38,7 +38,6 @@ SW除了work线程的限制外，由于可拦截页面请求，为了保证页�
 pc端火狐、谷歌、欧朋等支持
 
 目前来看移动端及pc端都是可以尝试使用哒
-
 ![avatar](http://img.hb.aicdn.com/6d1b16079c3f920c18aafb9701cf65b6ace6047f4a2b-YnMm5C)
 
 不过在chrome里调试是最方便的，
