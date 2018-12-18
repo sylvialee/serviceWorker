@@ -39,15 +39,15 @@ pc端火狐、谷歌、欧朋等支持
 
 目前来看移动端及pc端都是可以尝试使用哒
 
-![avatar](http://wx4.sinaimg.cn/mw690/76c6c688ly1fwqja3fbgwj215e0bbwfx.jpg)
+![avatar](http://img.hb.aicdn.com/6d1b16079c3f920c18aafb9701cf65b6ace6047f4a2b-YnMm5C)
 
 不过在chrome里调试是最方便的，
 
 可以直观看到当前SW的状态、使用页面；
-![avatar](http://wx3.sinaimg.cn/mw690/76c6c688ly1fxlr4tyazvj21fc0oidk9.jpg)
+![avatar](http://img.hb.aicdn.com/32a60afd46e9c0784e7391024b820b0e0ae93e0dc958-SHw7Ll)
 
 在cacheStorage查看缓存空间的存储信息
-![avatar](http://wx2.sinaimg.cn/mw690/76c6c688ly1fxlr4z7rvbj21f80r8n1a.jpg)
+![avatar](http://img.hb.aicdn.com/030bad0241e90860b4bce6e37fc7bd1f19f888cfb8ee-qGIUOk)
 
 ### 1.3、service worker可以解决的问题
 
@@ -74,7 +74,7 @@ pc端火狐、谷歌、欧朋等支持
 
 ### 2.2 二次访问
 在上一次服务未销毁时，二次访问页面，直接停留在激活运行状态
-![avatar](http://wx3.sinaimg.cn/mw690/76c6c688ly1fxlr4tyazvj21fc0oidk9.jpg)
+![avatar](http://img.hb.aicdn.com/3490511aebb1bb33918826d77b316dce3a59345018bb7-DVsSqb)
 
 ### 2.3 服务脚本更新
 如上图，sw.js中，每次访问都会被下载一次。并且至少每24小时会被下载一次。为的是避免错误代码一直被运行。
@@ -82,7 +82,7 @@ pc端火狐、谷歌、欧朋等支持
 当 clients 都被关闭后，再次打开，才会激活最新的代码
 当然，也有方法可以跳过等待，比方说在安装完成后，执行 `installEvent.skipWaiting()`
 ![avatar](http://wx1.sinaimg.cn/mw690/76c6c688ly1fwr9kw090jj20910chmxk.jpg)
-![avatar](http://wx1.sinaimg.cn/mw690/76c6c688ly1fxp1jvqgppj21le0u0tcu.jpg)
+![avatar](http://img.hb.aicdn.com/bbed3a78224e5f6405de0b56375f3a16c95392751e5f1-HDB77K)
 
 ## 3、SW的实际使用
 
