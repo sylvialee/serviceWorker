@@ -29,8 +29,8 @@ self.addEventListener('fetch', function(e){
       // caches.open(CACHE_NAME).then(cache => {
       //   cache.put(e.request, )
       // })
-      return fetch('./static/img/dog.png').then(res => {
-        return cache.put('./static/img/cat.png', res)
+      fetch('./static/img/dog.png').then(res => {
+        return res
       })
     )
   }
