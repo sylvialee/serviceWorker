@@ -3,8 +3,8 @@ const urlsToCache = [
   './worker.js'
 ]
 const fetchUrl = [
-    './static/img/cat.png'
-  ]
+  './static/img/cat.png'
+]
 
 self.addEventListener('install', function(e){
   e.waitUntil(
@@ -18,5 +18,20 @@ self.addEventListener('install', function(e){
 self.addEventListener('fetch', function(e){
   console.log(e)
   let requestUrl = e.request.url
-  // e.responseWith()
+  if(fetchUrl.indexOf(requestUrl) > -1){
+    caches.open(CACHE_NAME).then(cache => {
+      return fetch('./static/img/dog.png').then(res => {
+        return cache.put('./static/img/cat.png', res)
+      })
+    })
+    
+    e.responseWith(
+      // caches.open(CACHE_NAME).then(cache => {
+      //   cache.put(e.request, )
+      // })
+      return fetch('./static/img/dog.png').then(res => {
+        return cache.put('./static/img/cat.png', res)
+      })
+    )
+  }
 })
