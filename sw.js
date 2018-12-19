@@ -4,7 +4,7 @@ const urlsToCache = [
   // './static/img/cat.png'
 ]
 const fetchUrl = [
-  './static/img/cat.png'
+  '/serviceWorker/static/img/cat.png'
 ]
 
 self.addEventListener('install', function(e){
