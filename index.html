@@ -6,7 +6,9 @@
 </head>
 <body>
   <p id="count">service worker离线缓存</p>
-  <p>第一次访问</p>
+  <p>第一次访问，图片是cat图片</p>
+  <p>此时在sw中监听fetch事件。 fetch中拦截了cat图片的请求，转而去请求dog图片，将dog图片结果返回给页面并缓存到cacheStorage中</p>
+  <p>刷新后，当请求cat图片时，直接用的缓存中的dog图片</p>
   <div id="content">
     <img src="./static/img/cat.png" alt="">
 
