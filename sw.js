@@ -1,6 +1,7 @@
 const CACHE_NAME = 'sylvia_cache_v1.0.0'
 const urlsToCache = [
-  './worker.js'
+  './worker.js',
+  './static/img/cat.png'
 ]
 const fetchUrl = [
   './static/img/cat.png'
@@ -29,9 +30,7 @@ self.addEventListener('fetch', function(e){
       // caches.open(CACHE_NAME).then(cache => {
       //   cache.put(e.request, )
       // })
-      fetch('./static/img/dog.png').then(res => {
-        return res
-      })
+      fetch('./static/img/dog.png')
     )
   }
 })
