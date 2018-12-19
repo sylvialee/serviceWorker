@@ -300,5 +300,5 @@ pc端火狐、谷歌、欧朋等支持
 ## 7、demo演示
 由于微信中并不支持SW，所以建议在浏览器中打开
 - demo地址：https://sylvialee.github.io/serviceWorker/
-- 二维码： 
+-  
 ![avatar](http://img.hb.aicdn.com/b194b23056db821f98ba530ef793dc71d1a9a3ce656-8xLBXw)
