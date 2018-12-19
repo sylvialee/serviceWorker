@@ -180,7 +180,7 @@ pc端火狐、谷歌、欧朋等支持
 
     // 可以过滤使用已缓存的请求，若无缓存，由fetch发起新的请求，并返回给页面
     self.addEventListener('fetch', event => {
-      event.responseWith(
+      event.respondWith(
         caches.match(event.request).then(res => {
           if(res){
             return res
@@ -193,7 +193,7 @@ pc端火狐、谷歌、欧朋等支持
 
     // 也可连续将请求缓存到内存里
     self.addEventListener('fetch', event => {
-      event.responseWith(
+      event.respondWith(
         caches.match(event.request).then(response => {
           if(response){
             return response
