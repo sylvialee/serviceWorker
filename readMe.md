@@ -59,9 +59,9 @@ pc端火狐、谷歌、欧朋等支持
 
 
 ## 2、生命周期
-生命周期由5步：注册、安装成功（安装失败）、激活、运行、销毁
-事件：install、activate、message、fetch、push、async
+生命周期有5步：注册、安装成功（安装失败）、激活、运行、销毁
 
+事件：install、activate、message、fetch、push、async
 
 由于是离线缓存，所以在首次注册、二次访问、服务脚本更新等会有不同的生命周期
 
@@ -98,7 +98,7 @@ pc端火狐、谷歌、欧朋等支持
     if('serviceWorker' in navigator){
       navigator.serviceWorker
         
-        // scope是自定义sw的作用域范围为根目录，默认作用域为当前sw.js所在目录的自文件
+        // scope是自定义sw的作用域范围为根目录，默认作用域为当前sw.js所在目录的页面
         .register('./sw.js', {scope: '/'})
             
         // 注册成功后会返回reg对象，指代当前服务线程实例
@@ -234,7 +234,7 @@ pc端火狐、谷歌、欧朋等支持
       console.log('it can't work!')
     }
 
-如果浏览器支持，可以直接在引用API接口：
+如果浏览器支持，可以直接引用API接口：
 
 - precaching，可以在注册成功后直接缓存的文件
 - routing，匹配符合规则的url，与strategies合作来完成文件的缓存
